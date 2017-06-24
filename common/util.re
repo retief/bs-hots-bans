@@ -3,6 +3,12 @@ let debug v => {
   v;
 };
 
+let flip f a b => f b a;
+let (%) f g x => f @@ g x;
+let const x _ => x;
+let on c f a b => c (f a) (f b);
+let neg f x => not @@ f x;
+
 module List = {
   include List;
 
@@ -58,18 +64,18 @@ module List = {
 
   let rec slow_filter p l acc => switch l {
     | [] => acc
-    | [v, ...tl] => p v [@bs] ? slow_filter p tl [v, ...acc] : slow_filter p tl acc
+    | [v, ...tl] => p v ? slow_filter p tl [v, ...acc] : slow_filter p tl acc
   };
   let rec count_filter i p l => switch l {
     | [] => []
     | _ when i > stack_max => rev (slow_filter p l [])
-    | [v, ...tl] => p v [@bs] ? [v, ...count_filter (i - 1) p tl] : count_filter i p tl
+    | [v, ...tl] => p v ? [v, ...count_filter (i + 1) p tl] : count_filter i p tl
   };
   let filter p l => count_filter 0 p l;
 
   let rec slow_map_option p l acc => switch l {
     | [] => acc
-    | [v, ...tl] => switch (p v [@bs]) {
+    | [v, ...tl] => switch (p v) {
       | Some v' => slow_map_option p tl [v', ...acc]
       | None =>  slow_map_option p tl acc
     }
@@ -77,8 +83,8 @@ module List = {
   let rec count_map_option i p l => switch l {
     | [] => []
     | _ when i > stack_max => rev (slow_map_option p l [])
-    | [v, ...tl] => switch (p v [@bs]) {
-      | Some v' => [v', ...count_map_option (i - 1) p tl]
+    | [v, ...tl] => switch (p v) {
+      | Some v' => [v', ...count_map_option (i + 1) p tl]
       | None => count_map_option i p tl
     }
   };
@@ -87,21 +93,18 @@ module List = {
   let rev_mapi f l => {
     let rec iter i res => fun
       | [] => res
-      | [v, ...tl] => iter (i + 1) [f i v] tl;
+      | [v, ...tl] => iter (i + 1) [f i v, ...res] tl;
     iter 0 [] l;
   };
 
   let mapi f l => rev (rev_mapi f l);
 
-  let fold_right f l accu => switch l {
-    | [] => accu
-    | _ => fold_left (fun a b => f b a) accu (rev l)
-  };
+  let fold_right f l accu => fold_left (fun a b => f b a) accu (rev l);
 
   let concat l => fold_right append l [];
 
   let map2 f l1 l2 => rev (rev_map2 f l1 l2);
-  let fold_right2 f l1 l2 accu => fold_left2 (fun a b c => f b c a) accu l1 l2;
+  let fold_right2 f l1 l2 accu => fold_left2 (fun a b c => f b c a) accu (rev l1) (rev l2);
 
   let replicate n v => {
     let rec iter i res => i <= 0 ? res : iter (i - 1) [v, ...res];
@@ -115,13 +118,12 @@ module List = {
       | None => some_option f tl
     };
 
-  let rec some f => fun
-    | [] => false
-    | [v, ...tl] => f v ? true : some f tl;
+  let some f l => switch (some_option (fun v => f v ? Some v : None) l) {
+    | Some _ => true
+    | None => false
+  };
 
-  let rec all f => fun
-    | [] => true
-    | [v, ...tl] => f v ? all f tl : false;
+  let all f l => not @@ some (neg f) l;
 
   let merge cmp l1 l2 => {
     let rec loop acc l1 l2 => switch (l1, l2) {
