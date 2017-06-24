@@ -1,0 +1,16 @@
+{
+  "name": "hot-bans",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "bs-platform": "^1.7.5",
+    "mocha": "^3.4.2"
+  }
+}

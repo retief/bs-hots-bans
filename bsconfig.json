@@ -1,0 +1,9 @@
+{
+  "name": "hots-bans-client",
+  "sources": [
+    "client",
+    "common",
+    "test",
+    "test/common",
+  ]
+}
