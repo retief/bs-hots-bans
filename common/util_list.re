@@ -41,6 +41,24 @@ let slow_map = Util_kernel.slow_map;
 let count_map = Util_kernel.count_map;
 let map = Util_kernel.map;
 
+let fold_right = Util_kernel.fold_right;
+
+let concat l => fold_right append l [];
+let map_concat f l => map f l |> concat;
+
+/* Add monadic functions as soon as we have the prereqs defined */
+module Monad_base = {
+  type t 'a = list 'a;
+  let (>>=) l f => map f l |> concat;
+  let pure v => [v];
+  let mzero = [];
+  let mplus = (@);
+  let map = `Custom map;
+};
+include Monad_base;
+include Util_monad.Monad_make Monad_base;
+include Util_monad.Monad_plus_make Monad_base;
+
 let rec slow_filter p l acc => switch l {
   | [] => acc
   | [v, ...tl] => p v ? slow_filter p tl [v, ...acc] : slow_filter p tl acc
@@ -52,23 +70,6 @@ let rec count_filter i p l => switch l {
 };
 let filter p l => count_filter 0 p l;
 
-let rec slow_map_option p l acc => switch l {
-  | [] => acc
-  | [v, ...tl] => switch (p v) {
-    | Some v' => slow_map_option p tl [v', ...acc]
-    | None =>  slow_map_option p tl acc
-  }
-};
-let rec count_map_option i p l => switch l {
-  | [] => []
-  | _ when i > stack_max => rev (slow_map_option p l [])
-  | [v, ...tl] => switch (p v) {
-    | Some v' => [v', ...count_map_option (i + 1) p tl]
-    | None => count_map_option i p tl
-  }
-};
-let map_option p l => count_map_option 0 p l;
-
 let rev_mapi f l => {
   let rec iter i res => fun
     | [] => res
@@ -77,10 +78,6 @@ let rev_mapi f l => {
 };
 
 let mapi f l => rev (rev_mapi f l);
-
-let fold_right = Util_kernel.fold_right;
-
-let concat l => fold_right append l [];
 
 let map2 f l1 l2 => rev (rev_map2 f l1 l2);
 let fold_right2 f l1 l2 accu => fold_left2 (fun a b c => f b c a) accu (rev l1) (rev l2);

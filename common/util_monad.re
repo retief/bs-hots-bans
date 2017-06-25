@@ -11,6 +11,7 @@ module type Monad_base = {
   type t 'a;
   let (>>=) : t 'a => ('a => t 'b) => t 'b;
   let pure : 'a => t 'a;
+  let map : [ `Define_using_bind | `Custom of ('a => 'b) => t 'a => t 'b ];
 };
 
 module type Monad_plus_base = {
@@ -88,35 +89,3 @@ module Monad_plus_make = fun (M: Monad_plus_base) => {
   let msum l => fold_left mplus mzero l;
   let filter f m => m >>= fun v => f v ? pure v : mzero;
 };
-
-module Option = {
-  module Base = {
-    type t 'a = option 'a;
-    let (>>=) v f => switch v {
-      | Some x => f x
-      | None => None;
-    };
-    let pure x => Some x;
-    let mzero = None;
-    let mplus mx my => switch mx {
-      | Some _ => mx
-      | None => my
-    };
-  };
-  include Base;
-  include Monad_make Base;
-  include Monad_plus_make Base;
-};
-
-module List = {
-  module Base = {
-    type t 'a = list 'a;
-    let (>>=) l f => List.map f l |> List.concat;
-    let pure v => [v];
-    let mzero = [];
-    let mplus = (@);
-  };
-  include Base;
-  include Monad_make Base;
-  include Monad_plus_make Base;
-}

@@ -3,7 +3,7 @@ open Util;
 module Type1 = {
   module Base = {
     type t = { arr: array t, lst: list int, i: int, f: float, s: string };
-    let rec from_json j => Monad.Option.({
+    let rec from_json j => Option.({
       Js.Json.decodeObject j >>= fun d =>
       Js.Dict.get d "i" >>= Json.Int.from_json >>= fun i =>
       Js.Dict.get d "s" >>= Json.String.from_json >>= fun s =>

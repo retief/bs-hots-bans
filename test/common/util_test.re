@@ -50,18 +50,6 @@ List.(
     }),
     ("map doesn't cause stack overflow", fun () =>
       Eq 10_000 (replicate 10_000 1 |> map (fun a => a) |> length)),
-    /* filter */
-    ("filter works", fun () => Eq [1, 2, 3, 4] (filter ((<) 0) [-1, 1, -2, 2, 3, 4, 0])),
-    ("filter doesn't cause stack overflow", fun () =>
-      Eq 10_000 (length @@ filter ((<) 0) (append (replicate 10_000 1) (replicate 10_000 0)))),
-    /* map_option */
-    ("map_option works", fun () => Eq [2, 3, 4, 5] (map_option incr_if_pos [-1, 1, -2, 2, 3, 4, 0])),
-    ("map_option doesn't cause stack overflow", fun () =>
-      Eq 10_000 (length @@ map_option incr_if_pos (append (replicate 10_000 1) (replicate 10_000 0)))),
-    /* mapi */
-    ("mapi works", fun () => Eq (range start::(-1) 3)  (mapi (-) @@ replicate 4 1)),
-    ("mapi doesn't cause stack overflow", fun () =>
-      Eq 10_000 (length @@ mapi (+) @@ replicate 10_000 1)),
     /* fold_right */
     ("fold_right works", fun () => Eq (range 4) (fold_right (fun a b => [a, ...b]) (range 4) [])),
     ("fold_right doesn't cause stack overflow", fun () =>
@@ -73,6 +61,20 @@ List.(
       Eq 30_000 (length @@ concat @@ replicate 3 @@ replicate 10_000 1)),
     ("concat on many short lists doesn't cause stack overflow", fun () =>
       Eq 30_000 (length @@ concat @@ replicate 10_000 @@ replicate 3 1)),
+    /* map_concat */
+    ("map_concat works", fun () => Eq [1, 1, 1, 2, 2, 2] (map_concat (replicate 3) [1, 2])),
+    ("map_concat doesn't cause stack overflow on long results", fun () =>
+      Eq 30_000 (length @@ map_concat (replicate 10_000) [1, 2, 3])),
+    ("map_concat doesn't cause stack overflow on long inputs", fun () =>
+      Eq 30_000 (length @@ map_concat (replicate 3) @@ range 10_000)),
+    /* filter */
+    ("filter works", fun () => Eq [1, 2, 3, 4] (filter ((<) 0) [-1, 1, -2, 2, 3, 4, 0])),
+    ("filter doesn't cause stack overflow", fun () =>
+      Eq 10_000 (length @@ filter ((<) 0) (append (replicate 10_000 1) (replicate 10_000 0)))),
+    /* mapi */
+    ("mapi works", fun () => Eq (range start::(-1) 3)  (mapi (-) @@ replicate 4 1)),
+    ("mapi doesn't cause stack overflow", fun () =>
+      Eq 10_000 (length @@ mapi (+) @@ replicate 10_000 1)),
     /* map2 */
     ("map2 works", fun () => Eq (range 4) (map2 (-) (range start::1 5) (replicate 4 1))),
     ("map2 doesn't cause stack overflow", fun () =>
@@ -113,5 +115,32 @@ List.(
     ("invalid range params return empty list", fun () => Eq [] (range start::5 1)),
     ("range doesn't cause stack overflow", fun () =>
       Eq 10_000 (length @@ range 10_000)),
+  ]
+);
+
+Option.(
+  from_pair_suites "Util.Option" [
+    /* map_default */
+    ("map_default works on some", fun () => Eq 4 (map_default 1 ((+) 1) (Some 3))),
+    ("map_default works on none", fun () => Eq 2 (map_default 1 ((+) 1) None)),
+    /* is_some */
+    ("is_some works on some", fun () => Eq true (is_some (Some 1))),
+    ("is_some works on none", fun () => Eq false (is_some None)),
+    /* is_none */
+    ("is_none works on some", fun () => Eq false (is_none (Some 1))),
+    ("is_none works on none", fun () => Eq true (is_none None)),
+    /* unwrap_exn */
+    ("unwrap_exn works on some", fun () => Eq 2 (unwrap_exn (Some 2))),
+    ("unwrap_exn throws on none", fun () => ThrowAny (fun () => unwrap_exn None)),
+    /* concat */
+    ("concat works", fun () => Eq [1, 2, 3, 4] (concat [Some 1, None, Some 2, Some 3, None, None, Some 4])),
+    ("concat doesn't cause stack overflow", fun () =>
+      Eq 10_000 (List.length @@ concat
+        @@ List.append (List.replicate 10_000 (Some 2)) (List.replicate 10_000 None))),
+    /* map_option */
+    ("map_concat works", fun () => Eq [2, 3, 4, 5] (map_concat incr_if_pos [-1, 1, -2, 2, 3, 4, 0])),
+    ("map_concat doesn't cause stack overflow", fun () =>
+      Eq 10_000 (List.length @@ map_concat incr_if_pos
+        @@ List.append (List.replicate 10_000 1) (List.replicate 10_000 0))),
   ]
 );

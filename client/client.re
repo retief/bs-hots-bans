@@ -3,13 +3,13 @@ open Util;
 let l1 = [1, 2, 3, 4];
 let l2 = [5, 6, 7, 8];
 
-let res = Monad.List.(
+let res = List.(
   l1 >>= fun v1 =>
   l2 >>= fun v2 =>
   v1 + v2 |> pure
 );
 
-let res' = Monad.List.(
+let res' = List.(
   l1 >>= fun v1 => (fun v2 => v1 + v2 |> pure) =<< l2
 );
 

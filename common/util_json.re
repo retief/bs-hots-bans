@@ -20,7 +20,7 @@ module String = Json_make {
 
 module Int = Json_make {
   type t = int;
-  let from_json n => Util_monad.Option.(
+  let from_json n => Util_option.(
     map truncate @@ Js.Json.decodeNumber n
   );
   let to_json n => Js.Json.number (float n);
@@ -32,16 +32,13 @@ module Float = Json_make {
   let to_json = Js.Json.number;
 };
 
-let list_of_jarray f a => Util_monad.Option.(
+let list_of_jarray f a => Util_option.(
   Js.Json.decodeArray a |> map Array.to_list >>= mapM f
 );
 
 let array_of_jarray f a => try {
   let arr = Js.Json.decodeArray a;
-  let unpack_exn = fun
-    | None => raise (Invalid_argument "Unexpected None")
-    | Some v => v;
-  Some (Array.map (Util_kernel.compose unpack_exn f) @@ unpack_exn arr);
+  Util_option.(Some (Array.map (Util_kernel.compose unwrap_exn f) @@ unwrap_exn arr));
 } {
   | Invalid_argument _ => None
 };
