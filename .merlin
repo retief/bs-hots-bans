@@ -7,8 +7,12 @@ S test/common
 B lib/bs/test/common
 S test
 B lib/bs/test
+S common/util
+B lib/bs/common/util
 S common
 B lib/bs/common
+S server
+B lib/bs/server
 S client
 B lib/bs/client
 ####BSB GENERATED: NO EDIT}

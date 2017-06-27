@@ -53,7 +53,7 @@ module Monad_base = {
   let pure v => [v];
   let mzero = [];
   let mplus = (@);
-  let map = `Custom map;
+  let map_impl = `Custom map;
 };
 include Monad_base;
 include Util_monad.Monad_make Monad_base;

@@ -10,7 +10,7 @@ module Base = {
     | Some _ => mx
     | None => my
   };
-  let map = `Define_using_bind;
+  let map_impl = `Define_using_bind;
 };
 include Base;
 include Util_monad.Monad_make Base;

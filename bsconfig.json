@@ -2,7 +2,9 @@
   "name": "hots-bans-client",
   "sources": [
     "client",
+    "server",
     "common",
+    "common/util",
     "test",
     "test/common",
   ]

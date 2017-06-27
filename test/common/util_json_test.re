@@ -2,31 +2,31 @@ open Util;
 
 module Type1 = {
   module Base = {
-    type t = { arr: array t, lst: list int, i: int, f: float, s: string };
-    let rec from_json j => Option.({
-      Js.Json.decodeObject j >>= fun d =>
-      Js.Dict.get d "i" >>= Json.Int.from_json >>= fun i =>
-      Js.Dict.get d "s" >>= Json.String.from_json >>= fun s =>
-      Js.Dict.get d "arr" >>= Json.array_of_jarray from_json >>= fun arr =>
-      Js.Dict.get d "lst" >>= Json.list_of_jarray Json.Int.from_json >>= fun lst =>
-      Js.Dict.get d "f" >>= Json.Float.from_json >>= fun f =>
-      pure { arr, i, s, lst, f};
-    });
+    type t = { arr: array t, arr2: array float, lst: list int, i: int, f: float, s: string };
+    let make i f s arr arr2 lst => { arr, arr2, lst, i, f, s};
+    module FloatArray = Json.Array Json.Float;
+    module IntList = Json.List Json.Int;
+    let rec from_json j => Option.(Json.jdict_of_json j >>= fun d =>
+      make <$> Json.Int.get d "i"
+      <-> Json.Float.get d "f" <-> Json.String.get d "s"
+      <-> Json.get_array from_json d "arr"
+      <-> FloatArray.get d "arr2" <-> IntList.get d "lst");
 
-    let rec to_json = fun | { arr, i, f, s, lst} => Js.Dict.fromList [
+    let rec to_json = fun | { arr, arr2, i, f, s, lst} => Json.jobj_of_list [
       ("i", Json.Int.to_json i),
       ("s", Json.String.to_json s),
       ("arr", Json.jarray_of_array to_json arr),
-      ("lst", Json.jarray_of_list Json.Int.to_json lst),
+      ("arr2", FloatArray.to_json arr2),
+      ("lst", IntList.to_json lst),
       ("f", Json.Float.to_json f),
-    ] |> Js.Json.object_;
+    ];
   };
-  include Json.Json_make Base;
+  include Json.Extend Base;
 };
 
-let example_t1 : Type1.t = { i: 1, f: 1.2, s: "asdf", lst: [4, 5], arr: [|
-  { arr: [| |], f: 1.3, i: 3, s: "asdfs", lst: [1] },
-  { arr: [| |], f: 1.5, i: 5, s: "fdsa", lst: [2, 3]},
+let example_t1 : Type1.t = { i: 1, f: 1.2, s: "asdf", lst: [4, 5], arr2: [|1., 2.|], arr: [|
+  { arr: [| |], f: 1.3, i: 3, s: "asdfs", lst: [1], arr2: [|3.|] },
+  { arr: [| |], f: 1.5, i: 5, s: "fdsa", lst: [2, 3], arr2: [|4.|]},
 |]};
 
 open Bs_mocha;
