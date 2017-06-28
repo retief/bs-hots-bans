@@ -28,6 +28,36 @@ let make_hd name map games winrate = {
   name; map; games; winrate;
   power = truncate @@ float games *. (winrate -. 50.)
 }
+module Hero_detail = Json.Extend(struct
+  open Option
+  open Json
+  type t = hero_detail
+  let from_json j = jdict_of_json j >>= fun dict ->
+    make_hd <$> String.get dict "name"
+    <*> String.get dict "map"
+    <*> Int.get dict "games"
+    <*> Float.get dict "winrate"
+  let to_json { name; map; games; winrate } = Json.jobj_of_list
+    [ "name", String.to_json name;
+      "map", String.to_json map;
+      "games", Int.to_json games;
+      "winrate", Float.to_json winrate]
+end)
+
+type hero_data = { heroes: hero list; details: hero_detail list; }
+module Hero_data = Json.Extend(struct
+  open Option
+  module Hero_list = Json.List(Hero)
+  module Hero_detail_list = Json.List(Hero_detail)
+  type t = hero_data
+  let from_json j = Json.jdict_of_json j >>= fun dict ->
+    Hero_list.get dict "heroes" >>= fun heroes ->
+    Hero_detail_list.get dict "details" >>= fun details ->
+    pure { heroes; details }
+  let to_json { heroes; details } = Json.jobj_of_list
+    [ "heroes", Hero_list.to_json heroes;
+      "details", Hero_detail_list.to_json details]
+end)
 
 let float_chars = [%re "/[.0-9]+/g"]
 let int_chars = [%re "/[0-9]+/g"]
@@ -69,9 +99,8 @@ let get_hero_page name = let open Promise in
 let get_all_hero_details () = let open Promise in
   let get_details ({ name } : hero) = get_hero_page name |$> get_hero_details name
   in
-  catch (fun _ -> pure ([], []))
-    ( get_heroes () >>= fun heroes ->
-      mapM get_details heroes >>= fun details ->
-      pure (heroes, List.concat details))
+  get_heroes () >>= fun heroes ->
+  mapM get_details heroes >>= fun details ->
+  pure { heroes; details=List.concat details }
 
 let _ = Promise.map Js.log @@ get_all_hero_details ()

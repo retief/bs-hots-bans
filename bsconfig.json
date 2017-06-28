@@ -7,5 +7,8 @@
     "common/util",
     "test",
     "test/common",
+  ],
+  "bs-dependencies": [
+    "bs-express"
   ]
 }

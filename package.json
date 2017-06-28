@@ -2,7 +2,7 @@
   "name": "hot-bans",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "lib/js/server/server.js",
   "scripts": {
     "test": "mocha"
   },
@@ -11,10 +11,13 @@
   "license": "ISC",
   "devDependencies": {
     "bs-platform": "^1.7.5",
-    "mocha": "^3.4.2"
+    "mocha": "^3.4.2",
+    "nodemon": "^1.11.0"
   },
   "dependencies": {
+    "bs-express": "^0.0.2",
     "cheerio": "^1.0.0-rc.1",
+    "express": "^4.15.3",
     "request": "^2.81.0",
     "request-promise-native": "^1.0.4"
   }

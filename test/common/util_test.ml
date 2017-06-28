@@ -103,7 +103,7 @@ let _ = let open List in
 let _ = let open Option in
   from_pair_suites "Util.Option"
     [ ("map_default works on some", fun () -> Eq (4, map_default 1 ((+) 1) @@ Some 3));
-      ("map_default works on none", fun () -> Eq (2, map_default 1 ((+) 1) None));
+      ("map_default works on none", fun () -> Eq (1, map_default 1 ((+) 1) None));
       ("is_some works on some", fun () -> Eq (true, is_some @@ Some 1));
       ("is_some works on none", fun () -> Eq (false, is_some None));
       ("is_none works on some", fun () -> Eq (false, is_none @@ Some 1));

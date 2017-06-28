@@ -15,7 +15,7 @@ include Util_monad.Monad_make(Base)
 include Util_monad.Monad_plus_make(Base)
 
 let map_default a f = function
-  | None  -> f a
+  | None  -> a
   | Some v -> f v
 
 let is_some = function
