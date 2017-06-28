@@ -11,7 +11,7 @@ module Hero = Json.Extend(struct
   type t = hero
   let make name group = { name; group }
   let from_json j = Json.jdict_of_json j >>= fun dict ->
-    make <$> (dict @. "PrimaryName") <-> (dict @. "Group")
+    make <$> (dict @. "PrimaryName") <*> (dict @. "Group")
   let to_json { name; group } = Json.jobj_of_list
     [ "PrimaryName", to_json name;
       "Group", to_json group]

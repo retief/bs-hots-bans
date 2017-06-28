@@ -18,7 +18,7 @@ module type Monad = sig
   val map : ('a -> 'b) -> 'a t -> 'b t
   val (<$>) : ('a -> 'b) -> 'a t -> 'b t
   val ap : ('a -> 'b) t -> 'a t -> 'b t
-  val (<->) : ('a -> 'b) t -> 'a t -> 'b t
+  val (<*>) : ('a -> 'b) t -> 'a t -> 'b t
   val sequence : 'a t list -> 'a t
   val sequence_ : 'a t list -> unit t
   val mapM : ('a -> 'b t) -> 'a list -> 'b list t
@@ -41,8 +41,8 @@ module Monad_make(M:Monad_base) = struct
   let (<$>) = map
   let (|$>) v f = map f v
   let ap mf mx = mf >>= (flip map mx)
-  let (<->) = ap
-  let (|->) v f = ap f v
+  let (<*>) = ap
+  let (|*>) v f = ap f v
   let sequence l =
     let k m m' = m >>= (fun v  -> m' >>= (fun v'  -> pure (v :: v'))) in
       (fold_right k l) @@ (pure [])

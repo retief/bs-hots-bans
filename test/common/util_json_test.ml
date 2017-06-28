@@ -15,11 +15,11 @@ module Type1 = struct
     let rec from_json j = let open Option in
       Json.jdict_of_json j >>= fun d ->
       make <$> Json.Int.get d "i"
-      <-> Json.Float.get d "f"
-      <-> Json.String.get d "s"
-      <-> Json.get_array from_json d "arr"
-      <-> FloatArray.get d "arr2"
-      <-> IntList.get d "lst"
+      <*> Json.Float.get d "f"
+      <*> Json.String.get d "s"
+      <*> Json.get_array from_json d "arr"
+      <*> FloatArray.get d "arr2"
+      <*> IntList.get d "lst"
     let rec to_json = function
       | { arr; arr2; i; f; s; lst } -> Json.jobj_of_list
         [ ("i", (Json.Int.to_json i));
