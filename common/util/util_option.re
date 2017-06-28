@@ -32,6 +32,10 @@ let unwrap_exn = fun
   | None => raise (Invalid_argument "Can't unwrap None")
   | Some x => x;
 
+let unwrap default => fun
+  | None => default
+  | Some v => v;
+
 let cons_maybe m l => switch m {
   | None => l
   | Some v => [v, ...l]

@@ -17,7 +17,7 @@ external wrap : gcheerio => (_ [@bs.as ""]) => element => cheerio = "call" [@@bs
 
 external each : (int => element => unit) => cheerio = "" [@@bs.send.pipe: cheerio];
 
-external text : cheerio => Js.undefined string = "" [@@bs.send];
+external text : cheerio => string = "" [@@bs.send];
 external html : cheerio => Js.undefined string = "" [@@bs.send];
 
 let map_el f c => {

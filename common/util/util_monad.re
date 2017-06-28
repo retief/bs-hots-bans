@@ -50,6 +50,7 @@ module type Monad_plus = {
 module Monad_make = fun (M: Monad_base) => {
   open M;
 
+  let bind = (>>=);
   let (>>) a b => a >>= fun _ => b;
   let (=<<) f v => v >>= f;
 
@@ -58,10 +59,12 @@ module Monad_make = fun (M: Monad_base) => {
     | `Custom f => f
   };
   let (<$>) = map;
+  let (|$>) v f => map f v;
 
   let ap mf mx =>
     mf >>= flip map mx;
   let (<->) = ap;
+  let (|->) v f => ap f v;
 
   let sequence l => {
     let k m m' =>

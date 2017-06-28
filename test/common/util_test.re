@@ -132,6 +132,9 @@ Option.(
     /* unwrap_exn */
     ("unwrap_exn works on some", fun () => Eq 2 (unwrap_exn (Some 2))),
     ("unwrap_exn throws on none", fun () => ThrowAny (fun () => unwrap_exn None)),
+    /* unwrap */
+    ("unwrap works on some", fun () => Eq 2 (unwrap 3 (Some 2))),
+    ("unwrap works on none", fun () => Eq 3 (unwrap 3 None)),
     /* concat */
     ("concat works", fun () => Eq [1, 2, 3, 4] (concat [Some 1, None, Some 2, Some 3, None, None, Some 4])),
     ("concat doesn't cause stack overflow", fun () =>

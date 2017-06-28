@@ -19,5 +19,56 @@ module Hero = Json.Extend {
   ];
 };
 
-module HeroList = Json.Array Hero;
-Util.Promise.(debug <$> (HeroList.parse <$> request "https://api.hotslogs.com/Public/Data/Heroes"));
+type hero_detail = { name: string, map: string,
+  games: int, winrate: float, power: int};
+let make_hd name map games winrate => {
+  name, map, games, winrate,
+  power: truncate @@ float games *. (winrate -. 50.)
+};
+
+let float_chars = [%re "/[.0-9]+/g"];
+let int_chars = [%re "/[0-9]+/g"];
+let match r s => {
+  let break = ref false;
+  let buf = Buffer.create 5;
+  while (not !break) {
+    switch (Js.Re.exec s r) {
+      | None => break := true
+      | Some result => Buffer.add_string buf (Js.Re.matches result).(0)
+    };
+  };
+  Buffer.length buf == 0 ? None : Some (Buffer.contents buf);
+};
+
+
+let parse_hd name => fun
+  | [_, mp, g, wr, ..._] => Option.(
+    match int_chars g >>= int_of_string_safe >>= fun games =>
+    match float_chars wr >>= float_of_string_safe >>= fun winrate =>
+    make_hd name mp games winrate |> pure
+  )
+  | _ => None;
+
+module Hero_list = Json.List Hero;
+
+let get_heroes () => Promise.(request "https://api.hotslogs.com/Public/Data/Heroes"
+  |$> Hero_list.parse |$> Option.unwrap []);
+
+let get_hero_details name gc => Rcheerio.({
+  let process_row e => select_context gc "td" Element e
+    |> map gc text |> parse_hd name;
+  select gc "#winRateByMap tr"
+  |> map_el process_row |> Option.concat
+});
+
+let get_hero_page name => Promise.(request ("https://www.hotslogs.com/Sitewide/HeroDetails?Hero=" ^ name)
+  |$> Rcheerio.load);
+
+let get_all_hero_details () => Promise.({
+  let get_details ({ name } : hero) => get_hero_page name |$> get_hero_details name;
+  catch (fun _ => pure ([], [])) (get_heroes () >>= fun heroes =>
+  mapM get_details heroes >>= fun details =>
+  pure (heroes, List.concat details))
+});
+
+Promise.map Js.log @@ get_all_hero_details ();
