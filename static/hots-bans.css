@@ -133,3 +133,7 @@ Animate the stripes
   	background-position: 50px 50px;
   }
 }
+
+label {
+	margin-left: 10px;
+}
