@@ -9,7 +9,8 @@
     "dev-pack": "webpack -w",
     "dev-build": "bsb -w",
     "build": "bsb",
-    "rebuild": "bsb -clean-world -make-world"
+    "rebuild": "bsb -clean-world -make-world",
+    "start": "node lib/js/src/server/server.js"
   },
   "keywords": [],
   "author": "",

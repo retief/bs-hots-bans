@@ -1,61 +1,6 @@
 open Util
+open Data
 type error
-type client_request
-
-type hero = { name: string; group: string; }
-module Hero = Json.Extend(struct
-  open Option
-  open Json.String
-  type t = hero
-  let make name group = { name; group }
-  let from_json j = Json.jdict_of_json j >>= fun dict ->
-    make <$> (dict @. "PrimaryName") <*> (dict @. "Group")
-  let to_json { name; group } = Json.jobj_of_list
-    [ "PrimaryName", to_json name;
-      "Group", to_json group]
-end)
-
-type hero_detail = {
-  name: string;
-  map: string;
-  games: int;
-  winrate: float;
-  power: int;
-}
-let make_hd name map games winrate = {
-  name; map; games; winrate;
-  power = truncate @@ float games *. (winrate -. 50.)
-}
-module Hero_detail = Json.Extend(struct
-  open Option
-  open Json
-  type t = hero_detail
-  let from_json j = jdict_of_json j >>= fun dict ->
-    make_hd <$> String.get dict "name"
-    <*> String.get dict "map"
-    <*> Int.get dict "games"
-    <*> Float.get dict "winrate"
-  let to_json { name; map; games; winrate } = Json.jobj_of_list
-    [ "name", String.to_json name;
-      "map", String.to_json map;
-      "games", Int.to_json games;
-      "winrate", Float.to_json winrate]
-end)
-
-type hero_data = { heroes: hero list; details: hero_detail list; }
-module Hero_data = Json.Extend(struct
-  open Option
-  module Hero_list = Json.List(Hero)
-  module Hero_detail_list = Json.List(Hero_detail)
-  type t = hero_data
-  let from_json j = Json.jdict_of_json j >>= fun dict ->
-    Hero_list.get dict "heroes" >>= fun heroes ->
-    Hero_detail_list.get dict "details" >>= fun details ->
-    pure { heroes; details }
-  let to_json { heroes; details } = Json.jobj_of_list
-    [ "heroes", Hero_list.to_json heroes;
-      "details", Hero_detail_list.to_json details]
-end)
 
 let float_chars = [%re "/[.0-9]+/g"]
 let int_chars = [%re "/[0-9]+/g"]
@@ -81,7 +26,7 @@ let parse_hd name = function
 module Hero_list = Json.List(Hero)
 let get_heroes () = let open Promise in
   Request.get_json "https://api.hotslogs.com/Public/Data/Heroes"
-  |$> Hero_list.from_json % debug
+  |$> Hero_list.from_json
   |$> Option.unwrap []
 
 let get_hero_details name gc = let open Rcheerio in
@@ -94,9 +39,30 @@ let get_hero_page name = let open Promise in
   Request.get_html ("https://www.hotslogs.com/Sitewide/HeroDetails?Hero=" ^ name)
   |$> Rcheerio.load
 
+let dummy_data () = {
+  heroes = [
+    { group="Assassin"; name="Thrall" };
+    { group="Assassin"; name="Falstad" };
+    { group="Support"; name="Kharazim" };
+    { group="Support"; name="Brightwing" };
+  ];
+  details = [
+    make_hd "Thrall" "Battlefield of Eternity" 1000 50.;
+    make_hd "Falstad" "Battlefield of Eternity" 1000 49.;
+    make_hd "Kharazim" "Battlefield of Eternity" 1000 51.;
+    make_hd "Brightwing" "Battlefield of Eternity" 1000 52.;
+    make_hd "Thrall" "Garden of Terror" 1000 51.;
+    make_hd "Falstad" "Garden of Terror" 1000 50.;
+    make_hd "Kharazim" "Garden of Terror" 1000 51.;
+    make_hd "Brightwing" "Garden of Terror" 1000 49.;
+  ];
+  time = Js.Date.getTime @@ Js.Date.make ();
+}
+
 let get_all_hero_details () = let open Promise in
   let get_details ({ name } : hero) = get_hero_page name |$> get_hero_details name
   in
-  get_heroes () >>= fun heroes ->
+  pure @@ dummy_data ()
+  (* get_heroes () >>= fun heroes ->
   mapM get_details heroes >>= fun details ->
-  pure { heroes; details=List.concat details }
+  pure { heroes; details=List.concat details; time = Js.Date.getTime @@ Js.Date.make () } *)
