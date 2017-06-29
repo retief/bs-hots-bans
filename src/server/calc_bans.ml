@@ -1,8 +1,6 @@
 open Util
 type error
 type client_request
-external request : ((_)[@bs.as ""]) -> string -> string Js.Promise.t =
-  "call" [@@bs.module "request-promise-native"]
 
 type hero = { name: string; group: string; }
 module Hero = Json.Extend(struct
@@ -66,12 +64,12 @@ let switch r s =
   let buf = Buffer.create 5 in
   while not (!break) do
     match Js.Re.exec s r with
-      | None -> break := true
-      | Some result -> Buffer.add_string buf @@ (Js.Re.matches result).(0)
+    | None -> break := true
+    | Some result -> Buffer.add_string buf @@ (Js.Re.matches result).(0)
   done;
   match Buffer.length buf = 0 with
-    | true -> None
-    | false -> Some (Buffer.contents buf)
+  | true -> None
+  | false -> Some (Buffer.contents buf)
 
 let parse_hd name = function
   | _::mp::g::wr::_ -> let open Option in
@@ -82,8 +80,8 @@ let parse_hd name = function
 
 module Hero_list = Json.List(Hero)
 let get_heroes () = let open Promise in
-  request "https://api.hotslogs.com/Public/Data/Heroes"
-  |$> Hero_list.parse
+  Request.get_json "https://api.hotslogs.com/Public/Data/Heroes"
+  |$> Hero_list.from_json % debug
   |$> Option.unwrap []
 
 let get_hero_details name gc = let open Rcheerio in
@@ -93,7 +91,7 @@ let get_hero_details name gc = let open Rcheerio in
   select gc "#winRateByMap tr" |> map_el process_row |> Option.concat
 
 let get_hero_page name = let open Promise in
-  request ("https://www.hotslogs.com/Sitewide/HeroDetails?Hero=" ^ name)
+  Request.get_html ("https://www.hotslogs.com/Sitewide/HeroDetails?Hero=" ^ name)
   |$> Rcheerio.load
 
 let get_all_hero_details () = let open Promise in
@@ -102,5 +100,3 @@ let get_all_hero_details () = let open Promise in
   get_heroes () >>= fun heroes ->
   mapM get_details heroes >>= fun details ->
   pure { heroes; details=List.concat details }
-
-let _ = Promise.map Js.log @@ get_all_hero_details ()

@@ -2,9 +2,14 @@
   "name": "hot-bans",
   "version": "1.0.0",
   "description": "",
-  "main": "lib/js/server/server.js",
+  "main": "lib/js/src/server/server.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "dev-server": "nodemon",
+    "dev-pack": "webpack -w",
+    "dev-build": "bsb -w",
+    "build": "bsb",
+    "rebuild": "bsb -clean-world -make-world"
   },
   "keywords": [],
   "author": "",
@@ -12,13 +17,16 @@
   "devDependencies": {
     "bs-platform": "^1.7.5",
     "mocha": "^3.4.2",
-    "nodemon": "^1.11.0"
+    "nodemon": "^1.11.0",
+    "webpack": "^3.0.0"
   },
   "dependencies": {
+    "axios": "^0.16.2",
     "bs-express": "^0.0.2",
     "cheerio": "^1.0.0-rc.1",
     "express": "^4.15.3",
-    "request": "^2.81.0",
-    "request-promise-native": "^1.0.4"
+    "react": "^15.6.1",
+    "react-dom": "^15.6.1",
+    "reason-react": "^0.1.5"
   }
 }

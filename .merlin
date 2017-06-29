@@ -1,20 +1,24 @@
 ####{BSB GENERATED: NO EDIT
+FLG -ppx /Users/wzimrin/Programs/ocaml/hot-bans/node_modules/bs-platform/bin/reactjs_jsx_ppx.exe
+FLG -ppx /Users/wzimrin/Programs/ocaml/hot-bans/node_modules/bs-platform/bin/reactjs_jsx_ppx_2.exe
 FLG -ppx /Users/wzimrin/Programs/ocaml/hot-bans/node_modules/bs-platform/bin/bsppx.exe
 S /Users/wzimrin/Programs/ocaml/hot-bans/node_modules/bs-platform/lib/ocaml
 B /Users/wzimrin/Programs/ocaml/hot-bans/node_modules/bs-platform/lib/ocaml
 FLG -nostdlib -no-alias-deps -color always -w -40+6+7+27+32..39+44+45
 S /Users/wzimrin/Programs/ocaml/hot-bans/node_modules/bs-express/lib/ocaml
 B /Users/wzimrin/Programs/ocaml/hot-bans/node_modules/bs-express/lib/ocaml
+S /Users/wzimrin/Programs/ocaml/hot-bans/node_modules/reason-react/lib/ocaml
+B /Users/wzimrin/Programs/ocaml/hot-bans/node_modules/reason-react/lib/ocaml
 S test/common
 B lib/bs/test/common
 S test
 B lib/bs/test
-S common/util
-B lib/bs/common/util
-S common
-B lib/bs/common
-S server
-B lib/bs/server
-S client
-B lib/bs/client
+S src/common/util
+B lib/bs/src/common/util
+S src/common
+B lib/bs/src/common
+S src/server
+B lib/bs/src/server
+S src/client
+B lib/bs/src/client
 ####BSB GENERATED: NO EDIT}

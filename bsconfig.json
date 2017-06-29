@@ -1,14 +1,19 @@
 {
-  "name": "hots-bans-client",
+  "name": "hots-bans",
   "sources": [
-    "client",
-    "server",
-    "common",
-    "common/util",
+    "src/client",
+    "src/server",
+    "src/common",
+    "src/common/util",
     "test",
     "test/common",
   ],
   "bs-dependencies": [
-    "bs-express"
+    "bs-express",
+    "reason-react"
+  ],
+  "ppx-flags": [
+    "bs-platform/bin/reactjs_jsx_ppx.exe",
+    "bs-platform/bin/reactjs_jsx_ppx_2.exe"
   ]
 }
