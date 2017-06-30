@@ -1,0 +1,3 @@
+better error handling on requests (with result monad?)
+store data in dynamodb or google cloud datastore
+check how stable reason-react is
